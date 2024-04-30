@@ -36,7 +36,7 @@ This runs build/Build.cs which basically pulls OpenTelemetry DotNet Instrumentat
 
 ## Styling
 
-This package uses [StyleCop](https://github.com/DotNetAnalyzers/StyleCopAnalyzers) to enforce styling rules as well as having Copyright headers. More information about the rules themselves can be found [here](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/DOCUMENTATION.md). The project is configured to use StyleCop so any file that is added that violates any of the rules, the Code Editor will complain. Alternatively, running `dotnet build` will complain as well. Unfortunately, it doesn't auto apply styling. (Will need to look into auto enforcing styling)
+This package uses [StyleCop](https://github.com/DotNetAnalyzers/StyleCopAnalyzers) to enforce styling rules as well as having Copyright headers. More information about the rules themselves can be found [here](https://github.com/DotNetAnalyzers/StyleCopAnalyzers/blob/master/DOCUMENTATION.md). The project is configured to use StyleCop so any file that is added that violates any of the rules, the Code Editor will complain. Alternatively, running `dotnet build` will complain as well. Unfortunately, it doesn't auto apply styling. To fix "most" of styling issues that come up, you can run `dotnet format`.
 
 ## Testing
 
