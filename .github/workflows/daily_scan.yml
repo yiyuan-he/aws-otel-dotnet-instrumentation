@@ -1,0 +1,18 @@
+name: Daily scan
+
+on:
+#  schedule:
+#    - cron: '0 18 * * *' # scheduled to run at 18:00 UTC every day
+  workflow_dispatch: # be able to run the workflow on demand
+
+permissions:
+  contents: read
+
+jobs:
+  scan_and_report:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout repo for dependency scan
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
