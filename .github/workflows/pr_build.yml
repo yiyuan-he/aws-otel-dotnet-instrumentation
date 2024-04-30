@@ -1,0 +1,16 @@
+name: DotNet Instrumentation PR Build
+on:
+  pull_request:
+    branches:
+      - main
+      - "release/v*"
+
+permissions:
+  contents: read
+
+jobs:
+  build:
+    runs-on: windows-2022
+    steps:
+      - name: Checkout Contrib Repo @ SHA - ${{ github.sha }}
+        uses: actions/checkout@v4
