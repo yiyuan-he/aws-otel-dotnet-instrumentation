@@ -34,7 +34,8 @@ jobs:
   style-check:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - name: Checkout Contrib Repo @ SHA - ${{ github.sha }}
+        uses: actions/checkout@v4
 
       - name: Setup .NET
         uses: actions/setup-dotnet@v2
@@ -42,4 +43,4 @@ jobs:
           dotnet-version: '8.0.x'
 
       - name: Check code style
-        run: dotnet format --check
+        run: dotnet format --verify-no-changes
