@@ -128,7 +128,7 @@ internal partial class Build : NukeBuild
             {
                 FileSystemTasks.CopyFileToDirectory(
                     RootDirectory / "src" / "AWS.OpenTelemetry.AutoInstrumentation" / "bin" / this.configuration /
-                    "net462" / "AWS.OpenTelemetry.AutoInstrumentation.dll",
+                    "net8.0" / "AWS.OpenTelemetry.AutoInstrumentation.dll",
                     this.openTelemetryDistributionFolder / "netfx");
             }
         });
