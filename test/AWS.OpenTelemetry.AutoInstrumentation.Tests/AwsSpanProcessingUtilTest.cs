@@ -1,6 +1,4 @@
 using System.Diagnostics;
-using OpenTelemetry;
-using Xunit.Sdk;
 using static AWS.OpenTelemetry.AutoInstrumentation.AwsAttributeKeys;
 using static OpenTelemetry.Trace.TraceSemanticConventions;
 using System.Reflection;
@@ -8,7 +6,6 @@ using System.Reflection;
 namespace AWS.OpenTelemetry.AutoInstrumentation.Tests;
 
 using Xunit;
-using NSubstitute;
 
 public class AwsSpanProcessingUtilTest
 {
@@ -331,6 +328,48 @@ public class AwsSpanProcessingUtilTest
         var spanDataMock = testSource.StartActivity("test");
         Assert.False(AwsSpanProcessingUtil.IsConsumerProcessSpan(spanDataMock));
     }
+
+    [Fact]
+    public void testNoMetricAttributesForSqsConsumerSpanAwsSdk()
+    {
+        ActivitySource awsActivitySource = new ActivitySource("Amazon.AWS.AWSClientInstrumentation");
+        var spanDataMock = awsActivitySource.StartActivity("SQS.ReceiveMessage", ActivityKind.Consumer);
+        spanDataMock.SetTag(AttributeAWSServiceName, "SQS");
+        spanDataMock.Start();
+        Assert.False(AwsSpanProcessingUtil.ShouldGenerateServiceMetricAttributes(spanDataMock));
+        Assert.False(AwsSpanProcessingUtil.ShouldGenerateDependencyMetricAttributes(spanDataMock));
+    }
     
+    [Fact]
+    public void testMetricAttributesGeneratedForOtherInstrumentationSqsConsumerSpan()
+    {
+        var spanDataMock = testSource.StartActivity("SQS.ReceiveMessage", ActivityKind.Consumer);
+        spanDataMock.SetTag(AttributeAWSServiceName, "SQS");
+        spanDataMock.Start();
+        Assert.True(AwsSpanProcessingUtil.ShouldGenerateServiceMetricAttributes(spanDataMock));
+        Assert.True(AwsSpanProcessingUtil.ShouldGenerateDependencyMetricAttributes(spanDataMock));
+    }
     
+    [Fact]
+    public void testNoMetricAttributesForAwsSdkSqsConsumerProcessSpan()
+    {
+        ActivitySource awsActivitySource = new ActivitySource("Amazon.AWS.AWSClientInstrumentation");
+        var spanDataMock = awsActivitySource.StartActivity("SQS.ReceiveMessage", ActivityKind.Consumer);
+        spanDataMock.SetTag(AttributeAWSServiceName, "SQS");
+        spanDataMock.SetTag(AttributeMessagingOperation, MessagingOperationValues.Process);
+        spanDataMock.Start();
+        Assert.False(AwsSpanProcessingUtil.ShouldGenerateServiceMetricAttributes(spanDataMock));
+        Assert.False(AwsSpanProcessingUtil.ShouldGenerateDependencyMetricAttributes(spanDataMock));
+        spanDataMock.Dispose();
+        
+        spanDataMock = awsActivitySource.StartActivity("SQS.ReceiveMessage", ActivityKind.Consumer);
+        spanDataMock.SetTag(AttributeAWSServiceName, "SQS");
+        spanDataMock.SetTag(AttributeMessagingOperation, MessagingOperationValues.Receive);
+        spanDataMock.Start();
+        Assert.True(AwsSpanProcessingUtil.ShouldGenerateServiceMetricAttributes(spanDataMock));
+        Assert.True(AwsSpanProcessingUtil.ShouldGenerateDependencyMetricAttributes(spanDataMock));
+        spanDataMock.Dispose();
+        
+        
+    }
 }
