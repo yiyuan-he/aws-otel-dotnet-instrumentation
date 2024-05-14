@@ -79,7 +79,21 @@ public class AwsSpanProcessingUtilTest
     }
     
     [Fact]    
-    public void TestGetIngressOperationInvalidNameAndValidTarget()
+    public void testGetIngressOperationInvalidNameAndValidTarget()
+    {
+        string invalidName = "";
+        string validTarget = "/";
+        var spanDataMock = testSource.StartActivity("test", ActivityKind.Server);
+        spanDataMock.DisplayName = invalidName;
+        spanDataMock.SetTag(AttributeHttpTarget, validTarget);
+        spanDataMock.Start();
+        string actualOperation = AwsSpanProcessingUtil.GetIngressOperation(spanDataMock);
+        Assert.Equal( validTarget, actualOperation);
+    }   
+
+    
+    [Fact]    
+    public void testGetIngressOperationInvalidNameAndValidTargetAndMethod()
     {
         string invalidName = "";
         string validTarget = "/";
@@ -115,7 +129,7 @@ public class AwsSpanProcessingUtilTest
     }
     
     [Fact]
-    public void TestExtractAPIPathValueEmpty()
+    public void TestExtractAPIPathValueEmptyTarget()
     {
         string invalidTarget = "";
         string pathValue = AwsSpanProcessingUtil.ExtractAPIPathValue(invalidTarget);
@@ -123,7 +137,7 @@ public class AwsSpanProcessingUtilTest
     }
     
     [Fact]
-    public void TestExtractAPIPathValueNull()
+    public void TestExtractAPIPathValueNullTarget()
     {
         string invalidTarget = null;
         string pathValue = AwsSpanProcessingUtil.ExtractAPIPathValue(invalidTarget);
@@ -369,7 +383,28 @@ public class AwsSpanProcessingUtilTest
         Assert.True(AwsSpanProcessingUtil.ShouldGenerateServiceMetricAttributes(spanDataMock));
         Assert.True(AwsSpanProcessingUtil.ShouldGenerateDependencyMetricAttributes(spanDataMock));
         spanDataMock.Dispose();
-        
-        
+    }
+
+    [Fact]
+    public void testSqlDialectKeywordsOrder()
+    {
+        List<String> keywords = AwsSpanProcessingUtil.GetDialectKeywords();
+        int prevKeywordLength = int.MaxValue;
+        foreach (var keyword in keywords)
+        {
+            int currKeywordLength = keyword.Length;
+            Assert.True(prevKeywordLength >= currKeywordLength);
+            prevKeywordLength = currKeywordLength;
+        }
+    }
+    
+    [Fact]
+    public void TestSqlDialectKeywordsMaxLength()
+    {
+        var keywords = AwsSpanProcessingUtil.GetDialectKeywords();
+        foreach (var keyword in keywords)
+        {
+            Assert.True(AwsSpanProcessingUtil.MaxKeywordLength >= keyword.Length);
+        }
     }
 }
