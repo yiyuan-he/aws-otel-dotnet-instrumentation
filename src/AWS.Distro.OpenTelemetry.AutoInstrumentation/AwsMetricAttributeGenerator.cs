@@ -31,9 +31,6 @@ internal class AwsMetricAttributeGenerator : IMetricAttributeGenerator
     public static readonly string AttributeServerAddress = "server.address";
     public static readonly string AttributeServerPort = "server.port";
 
-    // https://github.com/open-telemetry/opentelemetry-dotnet-contrib/blob/62b88fef65f770db7fe40fcd3f053fe743a64c83/src/Shared/SemanticConventions.cs#L108
-    public static readonly string AttributeServerSocketAddress = "server.socket.address";
-
     // This is not mentioned in upstream but java have that part
     public static readonly string AttributeServerSocketPort = "server.socket.port";
     public static readonly string AttributeDBUser = "db.user";
@@ -46,6 +43,8 @@ internal class AwsMetricAttributeGenerator : IMetricAttributeGenerator
     private static readonly string NormalizedKinesisServiceName = "AWS::Kinesis";
     private static readonly string NormalizedS3ServiceName = "AWS::S3";
     private static readonly string NormalizedSQSServiceName = "AWS::SQS";
+    private static readonly string NormalizedBedrockServiceName = "AWS::Bedrock";
+    private static readonly string NormalizedBedrockRuntimeServiceName = "AWS::BedrockRuntime";
     private static readonly string DbConnectionResourceType = "DB::Connection";
 
     // Special DEPENDENCY attribute value if GRAPHQL_OPERATION_TYPE attribute key is present.
@@ -368,6 +367,12 @@ internal class AwsMetricAttributeGenerator : IMetricAttributeGenerator
                 case "AmazonSQS": // AWS SDK v1
                 case "Sqs": // AWS SDK v2
                     return NormalizedSQSServiceName;
+                case "Bedrock":
+                case "Bedrock Agent":
+                case "Bedrock Agent Runtime":
+                    return NormalizedBedrockServiceName;
+                case "Bedrock Runtime":
+                    return NormalizedBedrockRuntimeServiceName;
                 default:
                     return "AWS::" + serviceName;
             }
@@ -409,6 +414,31 @@ internal class AwsMetricAttributeGenerator : IMetricAttributeGenerator
             {
                 remoteResourceType = NormalizedSQSServiceName + "::Queue";
                 remoteResourceIdentifier = EscapeDelimiters(GetQueueName((string?)span.GetTagItem(AttributeAWSSQSQueueUrl)));
+            }
+            else if (IsKeyPresent(span, AttributeAWSBedrockGuardrailId))
+            {
+                remoteResourceType = NormalizedBedrockServiceName + "::Guardrail";
+                remoteResourceIdentifier = EscapeDelimiters((string?)span.GetTagItem(AttributeAWSBedrockGuardrailId));
+            }
+            else if (IsKeyPresent(span, AttributeGenAiModelId))
+            {
+                remoteResourceType = NormalizedBedrockServiceName + "::Model";
+                remoteResourceIdentifier = EscapeDelimiters((string?)span.GetTagItem(AttributeGenAiModelId));
+            }
+            else if (IsKeyPresent(span, AttributeAWSBedrockAgentId))
+            {
+                remoteResourceType = NormalizedBedrockServiceName + "::Agent";
+                remoteResourceIdentifier = EscapeDelimiters((string?)span.GetTagItem(AttributeAWSBedrockAgentId));
+            }
+            else if (IsKeyPresent(span, AttributeAWSBedrockKnowledgeBaseId))
+            {
+                remoteResourceType = NormalizedBedrockServiceName + "::KnowledgeBase";
+                remoteResourceIdentifier = EscapeDelimiters((string?)span.GetTagItem(AttributeAWSBedrockKnowledgeBaseId));
+            }
+            else if (IsKeyPresent(span, AttributeAWSBedrockDataSourceId))
+            {
+                remoteResourceType = NormalizedBedrockServiceName + "::DataSource";
+                remoteResourceIdentifier = EscapeDelimiters((string?)span.GetTagItem(AttributeAWSBedrockDataSourceId));
             }
         }
         else if (IsDBSpan(span))
