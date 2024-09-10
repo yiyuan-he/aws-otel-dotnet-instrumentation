@@ -147,11 +147,12 @@ public class Plugin
         if (this.IsApplicationSignalsEnabled())
         {
             Logger.Log(LogLevel.Information, "AWS Application Signals enabled");
-            var resourceBuilder = this.ResourceBuilderCustomizer(ResourceBuilder.CreateDefault());
-            var resource = resourceBuilder.Build();
-            Sampler alwaysRecordSampler = AlwaysRecordSampler.Create(SamplerUtil.GetSampler(resource));
-            builder.SetSampler(alwaysRecordSampler);
         }
+
+        var resourceBuilder = this.ResourceBuilderCustomizer(ResourceBuilder.CreateDefault());
+        var resource = resourceBuilder.Build();
+        Sampler alwaysRecordSampler = AlwaysRecordSampler.Create(SamplerUtil.GetSampler(resource));
+        builder.SetSampler(alwaysRecordSampler);
 
         return builder;
     }
