@@ -144,15 +144,20 @@ public class Plugin
     /// <returns>Returns configured builder</returns>
     public TracerProviderBuilder AfterConfigureTracerProvider(TracerProviderBuilder builder)
     {
+        var resourceBuilder = this.ResourceBuilderCustomizer(ResourceBuilder.CreateDefault());
+        var resource = resourceBuilder.Build();
+        Sampler sampler = SamplerUtil.GetSampler(resource);
+
         if (this.IsApplicationSignalsEnabled())
         {
             Logger.Log(LogLevel.Information, "AWS Application Signals enabled");
+            Sampler alwaysRecordSampler = AlwaysRecordSampler.Create(sampler);
+            builder.SetSampler(alwaysRecordSampler);
         }
-
-        var resourceBuilder = this.ResourceBuilderCustomizer(ResourceBuilder.CreateDefault());
-        var resource = resourceBuilder.Build();
-        Sampler alwaysRecordSampler = AlwaysRecordSampler.Create(SamplerUtil.GetSampler(resource));
-        builder.SetSampler(alwaysRecordSampler);
+        else
+        {
+            builder.SetSampler(sampler);
+        }
 
         return builder;
     }
