@@ -4,6 +4,7 @@
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
 using Amazon.Runtime;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
@@ -282,6 +283,16 @@ public class Plugin
     {
         options.EnrichWithHttpRequest = (activity, request) =>
         {
+            // Storing a weak reference of the httpContext to be accessed later by processors. Weak References allow the garbage collector
+            // to reclaim memory if the object is no longer used.
+            // We are storing references due to the following:
+            //      1. When a request is received, an activity starts immediately and in that phase,
+            //      the routing middleware hasn't executed and thus the routing data isn't available yet
+            //      2. Once the routing middleware is executed, and the request is matched to the route template,
+            //      we are certain the routing data is avaialble when any children activities are started.
+            //      3. We then use this HttpContext object to access the now available route data.
+            activity.SetCustomProperty("HttpContextWeakRef", new WeakReference<HttpContext>(request.HttpContext));
+
             if (this.sampler != null && this.sampler.GetType() == typeof(AWSXRayRemoteSampler))
             {
                 this.ShouldSampleParent(activity);

@@ -2,6 +2,11 @@
 // SPDX-License-Identifier: Apache-2.0
 
 using System.Diagnostics;
+#if !NETFRAMEWORK
+using Microsoft.AspNetCore.Diagnostics;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Routing;
+#endif
 using Newtonsoft.Json.Linq;
 using OpenTelemetry;
 using static AWS.Distro.OpenTelemetry.AutoInstrumentation.AwsAttributeKeys;
@@ -105,6 +110,28 @@ internal sealed class AwsSpanProcessingUtil
         {
             operation = InternalOperation;
         }
+
+#if !NETFRAMEWORK
+        // Access the HttpContext object to get the route data.
+        else if (span.GetCustomProperty("HttpContextWeakRef") is WeakReference<HttpContext> httpContextWeakRef &&
+            httpContextWeakRef.TryGetTarget(out var httpContext))
+        {
+            // This is copied from upstream to maintain the same retrieval logic
+            // https://github.com/open-telemetry/opentelemetry-dotnet-contrib/blob/main/src/OpenTelemetry.Instrumentation.AspNetCore/Implementation/HttpInListener.cs#L246C13-L247C83
+            var routePattern = (httpContext.Features.Get<IExceptionHandlerPathFeature>()?.Endpoint as RouteEndpoint ??
+                    httpContext.GetEndpoint() as RouteEndpoint)?.RoutePattern.RawText;
+
+            if (!string.IsNullOrEmpty(routePattern))
+            {
+                string? httpMethod = (string?)span.GetTagItem(AttributeHttpRequestMethod);
+                operation = httpMethod + " " + routePattern;
+            }
+            else
+            {
+                operation = GenerateIngressOperation(span);
+            }
+        }
+#endif
 
         // workaround for now so that both Server and Consumer spans have same operation
         // TODO: Update this and other languages so that all of them set the operation during propagation.
