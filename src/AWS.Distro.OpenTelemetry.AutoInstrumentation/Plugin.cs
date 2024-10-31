@@ -3,17 +3,20 @@
 
 using System.Diagnostics;
 using System.Diagnostics.Metrics;
+using System.Reflection;
 using Amazon.Runtime;
-using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using OpenTelemetry;
 using OpenTelemetry.Context.Propagation;
 using OpenTelemetry.Exporter;
 using OpenTelemetry.Extensions.AWS.Trace;
-#if NETFRAMEWORK
+#if !NETFRAMEWORK
+using Microsoft.AspNetCore.Http;
+using OpenTelemetry.Instrumentation.AspNetCore;
+#else
+using System.Web;
 using OpenTelemetry.Instrumentation.AspNet;
 #endif
-using OpenTelemetry.Instrumentation.AspNetCore;
 using OpenTelemetry.Instrumentation.Http;
 using OpenTelemetry.Metrics;
 using OpenTelemetry.ResourceDetectors.AWS;
@@ -279,6 +282,7 @@ public class Plugin
     /// Used to call ShouldSampleParent function
     /// </summary>
     /// <param name="options"><see cref="AspNetCoreTraceInstrumentationOptions"/> options to configure</param>
+#if !NETFRAMEWORK
     public void ConfigureTracesOptions(AspNetCoreTraceInstrumentationOptions options)
     {
         options.EnrichWithHttpRequest = (activity, request) =>
@@ -299,6 +303,7 @@ public class Plugin
             }
         };
     }
+#endif
 
 #if NETFRAMEWORK
     /// <summary>
@@ -309,6 +314,25 @@ public class Plugin
     {
         options.EnrichWithHttpRequest = (activity, request) =>
         {
+            HttpContext currentContext = HttpContext.Current;
+
+            if (currentContext == null)
+            {
+                Type requestType = typeof(HttpRequest);
+
+                PropertyInfo contextProperty = requestType.GetProperty("Context", BindingFlags.Instance | BindingFlags.NonPublic);
+
+                if (contextProperty != null)
+                {
+                    currentContext = (HttpContext)contextProperty.GetValue(request);
+                }
+            }
+
+            if (currentContext != null)
+            {
+                activity.SetCustomProperty("HttpContextWeakRef", new WeakReference<HttpContext>(currentContext));
+            }
+
             if (this.sampler != null && this.sampler.GetType() == typeof(AWSXRayRemoteSampler))
             {
                 this.ShouldSampleParent(activity);
