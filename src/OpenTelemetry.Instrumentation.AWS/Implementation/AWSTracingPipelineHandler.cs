@@ -147,15 +147,6 @@ internal sealed class AWSTracingPipelineHandler : PipelineHandler
             {
                 try
                 {
-                    // for bedrock agent, we only extract one attribute based on the operation.
-                    if (AWSServiceType.IsBedrockAgentService(service))
-                    {
-                        if (AWSServiceHelper.OperationNameToResourceMap()[AWSServiceHelper.GetAWSOperationName(requestContext)] != parameter)
-                        {
-                            continue;
-                        }
-                    }
-
                     var property = request.GetType().GetProperty(parameter);
                     if (property != null)
                     {
