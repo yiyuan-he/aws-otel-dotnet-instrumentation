@@ -438,7 +438,7 @@ internal class AwsMetricAttributeGenerator : IMetricAttributeGenerator
             {
                 remoteResourceType = NormalizedBedrockServiceName + "::DataSource";
                 remoteResourceIdentifier = EscapeDelimiters((string?)span.GetTagItem(AttributeAWSBedrockDataSourceId));
-                cloudformationPrimaryIdentifier = 
+                cloudformationPrimaryIdentifier =
                     EscapeDelimiters((string?)span.GetTagItem(AttributeAWSBedrockKnowledgeBaseId))
                     + "|"
                     + remoteResourceIdentifier;
@@ -455,7 +455,8 @@ internal class AwsMetricAttributeGenerator : IMetricAttributeGenerator
             remoteResourceIdentifier = GetDbConnection(span);
         }
 
-        if (cloudformationPrimaryIdentifier == null) {
+        if (cloudformationPrimaryIdentifier == null)
+        {
             cloudformationPrimaryIdentifier = remoteResourceIdentifier;
         }
 
