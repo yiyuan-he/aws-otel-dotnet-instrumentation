@@ -564,7 +564,7 @@ class AWSSdkTest(ContractTestBase):
             remote_resource_identifier="amazon.titan-text-express-v1",
             cloudformation_primary_identifier="amazon.titan-text-express-v1",
             request_response_specific_attributes={
-                _GEN_AI_SYSTEM: "aws_bedrock",
+                _GEN_AI_SYSTEM: "aws.bedrock",
                 _GEN_AI_REQUEST_MODEL: "amazon.titan-text-express-v1",
                 _GEN_AI_REQUEST_TEMPERATURE: 0.123,
                 _GEN_AI_REQUEST_TOP_P: 0.456,
@@ -590,7 +590,7 @@ class AWSSdkTest(ContractTestBase):
             remote_resource_identifier="us.anthropic.claude-3-5-haiku-20241022-v1:0",
             cloudformation_primary_identifier="us.anthropic.claude-3-5-haiku-20241022-v1:0",
             request_response_specific_attributes={
-                _GEN_AI_SYSTEM: "aws_bedrock",
+                _GEN_AI_SYSTEM: "aws.bedrock",
                 _GEN_AI_REQUEST_MODEL: "us.anthropic.claude-3-5-haiku-20241022-v1:0",
                 _GEN_AI_REQUEST_TEMPERATURE: 0.123,
                 _GEN_AI_REQUEST_TOP_P: 0.456,
@@ -616,7 +616,7 @@ class AWSSdkTest(ContractTestBase):
             remote_resource_identifier="meta.llama3-8b-instruct-v1:0",
             cloudformation_primary_identifier="meta.llama3-8b-instruct-v1:0",
             request_response_specific_attributes={
-                _GEN_AI_SYSTEM: "aws_bedrock",
+                _GEN_AI_SYSTEM: "aws.bedrock",
                 _GEN_AI_REQUEST_MODEL: "meta.llama3-8b-instruct-v1:0",
                 _GEN_AI_REQUEST_TEMPERATURE: 0.123,
                 _GEN_AI_REQUEST_TOP_P: 0.456,
@@ -642,7 +642,7 @@ class AWSSdkTest(ContractTestBase):
             remote_resource_identifier="cohere.command-r-v1:0",
             cloudformation_primary_identifier="cohere.command-r-v1:0",
             request_response_specific_attributes={
-                _GEN_AI_SYSTEM: "aws_bedrock",
+                _GEN_AI_SYSTEM: "aws.bedrock",
                 _GEN_AI_REQUEST_MODEL: "cohere.command-r-v1:0",
                 _GEN_AI_REQUEST_TEMPERATURE: 0.123,
                 _GEN_AI_REQUEST_TOP_P: 0.456,
@@ -668,7 +668,7 @@ class AWSSdkTest(ContractTestBase):
             remote_resource_identifier="ai21.jamba-1-5-large-v1:0",
             cloudformation_primary_identifier="ai21.jamba-1-5-large-v1:0",
             request_response_specific_attributes={
-                _GEN_AI_SYSTEM: "aws_bedrock",
+                _GEN_AI_SYSTEM: "aws.bedrock",
                 _GEN_AI_REQUEST_MODEL: "ai21.jamba-1-5-large-v1:0",
                 _GEN_AI_REQUEST_TEMPERATURE: 0.123,
                 _GEN_AI_REQUEST_TOP_P: 0.456,
@@ -694,7 +694,7 @@ class AWSSdkTest(ContractTestBase):
             remote_resource_identifier="mistral.mistral-7b-instruct-v0:2",
             cloudformation_primary_identifier="mistral.mistral-7b-instruct-v0:2",
             request_response_specific_attributes={
-                _GEN_AI_SYSTEM: "aws_bedrock",
+                _GEN_AI_SYSTEM: "aws.bedrock",
                 _GEN_AI_REQUEST_MODEL: "mistral.mistral-7b-instruct-v0:2",
                 _GEN_AI_REQUEST_TEMPERATURE: 0.123,
                 _GEN_AI_REQUEST_TOP_P: 0.456,
