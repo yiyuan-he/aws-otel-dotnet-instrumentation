@@ -125,8 +125,11 @@ jobs:
           docker build -t ${{ secrets.RELEASE_STAIGNG_REPO }}:staging-windows2022-${{ steps.short_sha.outputs.SHORT_SHA }} -f ./Dockerfile.windows2022 .
           docker push ${{ secrets.RELEASE_STAIGNG_REPO }}:staging-windows2022-${{ steps.short_sha.outputs.SHORT_SHA }}
         shell: powershell
-
-  dotnet-ec2-default-test:
+  #
+  # PACKAGED DISTRIBUTION LANGUAGE VERSION COVERAGE
+  # DEFAULT SETTING: {Dotnet Version}, EC2
+  #
+  default-v8:
     needs: [ upload-main-build ]
     uses: aws-observability/aws-application-signals-test-framework/.github/workflows/dotnet-ec2-default-test.yml@main
     secrets: inherit
@@ -134,6 +137,17 @@ jobs:
       aws-region: us-east-1
       caller-workflow-name: 'main-build'
       staging_distro_name: ${{ inputs.ec2-default-image-name }}
+      dotnet-version: '8.0'
+      
+  default-v6:
+    needs: [ upload-main-build ]
+    uses: aws-observability/aws-application-signals-test-framework/.github/workflows/dotnet-ec2-default-test.yml@main
+    secrets: inherit
+    with:
+      aws-region: us-east-1
+      caller-workflow-name: 'main-build'
+      staging_distro_name: ${{ inputs.ec2-default-image-name }}
+      dotnet-version: '6.0'
       
   dotnet-ec2-windows-test:
     needs: [ upload-main-build ]
