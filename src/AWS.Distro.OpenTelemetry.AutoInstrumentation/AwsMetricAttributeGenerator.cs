@@ -410,6 +410,22 @@ internal class AwsMetricAttributeGenerator : IMetricAttributeGenerator
                 remoteResourceType = NormalizedKinesisServiceName + "::Stream";
                 remoteResourceIdentifier = EscapeDelimiters((string?)span.GetTagItem(AttributeAWSKinesisStreamName));
             }
+            else if (IsKeyPresent(span, AttributeAWSLambdaFunctionName))
+            {
+                if (GetRemoteOperation(span, AttributeRpcMethod) == "Invoke")
+                {
+                    attributes[AttributeAWSRemoteService] = GetLambdaFunctionNameFromArn(EscapeDelimiters((string?)span.GetTagItem(AttributeAWSLambdaFunctionName)));
+
+                    string lambdaRemoteEnv = Environment.GetEnvironmentVariable("LAMBDA_APPLICATION_SIGNALS_REMOTE_ENVIRONMENT") ?? "default";
+                    attributes.Add(AttributeAWSRemoteEnvironment, $"lambda:{lambdaRemoteEnv}");
+                }
+                else
+                {
+                    remoteResourceType = NormalizedLambdaServiceName + "::Function";
+                    remoteResourceIdentifier = GetLambdaFunctionNameFromArn(EscapeDelimiters((string?)span.GetTagItem(AttributeAWSLambdaFunctionName)));
+                    cloudformationPrimaryIdentifier = EscapeDelimiters((string?)span.GetTagItem(AttributeAWSLambdaFunctionName));
+                }
+            }
             else if (IsKeyPresent(span, AttributeAWSLambdaResourceMappingId))
             {
                 remoteResourceType = NormalizedLambdaServiceName + "::EventSourceMapping";
@@ -503,6 +519,22 @@ internal class AwsMetricAttributeGenerator : IMetricAttributeGenerator
             attributes.Add(AttributeAWSRemoteResourceIdentifier, remoteResourceIdentifier);
             attributes.Add(AttributeAWSCloudformationPrimaryIdentifier, cloudformationPrimaryIdentifier);
         }
+    }
+
+    private static string? GetLambdaFunctionNameFromArn(string? stringArn)
+    {
+        if (stringArn == null)
+        {
+            return null;
+        }
+
+        if (stringArn.StartsWith("arn:aws:lambda:", StringComparison.Ordinal))
+        {
+            string[] parts = stringArn.Split(':');
+            return parts.Length > 0 ? parts[parts.Length - 1] : null;
+        }
+
+        return stringArn;
     }
 
     private static void SetRemoteDbUser(Activity span, ActivityTagsCollection attributes)
