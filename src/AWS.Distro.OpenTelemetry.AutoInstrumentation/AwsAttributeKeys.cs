@@ -11,6 +11,7 @@ internal sealed class AwsAttributeKeys
     internal static readonly string AttributeAWSLocalOperation = "aws.local.operation";
     internal static readonly string AttributeAWSRemoteDBUser = "aws.remote.db.user";
     internal static readonly string AttributeAWSRemoteService = "aws.remote.service";
+    internal static readonly string AttributeAWSRemoteEnvironment = "aws.remote.environment";
     internal static readonly string AttributeAWSRemoteOperation = "aws.remote.operation";
 
     internal static readonly string AttributeAWSRemoteResourceIdentifier = "aws.remote.resource.identifier";
@@ -48,6 +49,7 @@ internal sealed class AwsAttributeKeys
     internal static readonly string AttributeAWSDynamoTableName = "aws.table_name";
     internal static readonly string AttributeAWSSQSQueueUrl = "aws.queue_url";
 
+    internal static readonly string AttributeAWSLambdaFunctionName = "aws.lambda.function.name";
     internal static readonly string AttributeAWSLambdaResourceMappingId = "aws.lambda.resource_mapping.id";
     internal static readonly string AttributeAWSS3Bucket = "aws.s3.bucket";
     internal static readonly string AttributeAWSSecretsManagerSecretArn = "aws.secretsmanager.secret.arn";
