@@ -43,7 +43,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Protobuf Include="opentelemetry\**\*.proto" GrpcServices="none" ProtoCompile="true" />
+    <Protobuf Include="opentelemetry\**\*.proto" GrpcServices="none" ProtoCompile="true" ProtoRoot="." />
   </ItemGroup>
 
   <!-- TODO: Once upstream release is done, move the dependency to use upstream version -->
