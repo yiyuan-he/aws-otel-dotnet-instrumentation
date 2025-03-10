@@ -1,0 +1,88 @@
+name: Release ADOT OTLP UDP Exporter
+
+on:
+  push:
+    branches:
+      - "udp-*"
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version number for deployment e.g. 0.1.0'
+        required: true
+        type: string
+
+jobs:
+  build-test-publish:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v3
+
+      - name: Set up .NET CLI
+        uses: actions/setup-dotnet@v2
+        with:
+          dotnet-version: '8.0.x'
+
+      - name: Download and run X-Ray Daemon
+        run: |
+          mkdir xray-daemon
+          cd xray-daemon
+          wget https://s3.us-west-2.amazonaws.com/aws-xray-assets.us-west-2/xray-daemon/aws-xray-daemon-linux-3.x.zip
+          unzip aws-xray-daemon-linux-3.x.zip
+          ./xray -o -n us-west-2 -f ./daemon-logs.log --log-level debug &
+
+      - name: Create NuGet.Config with multiple sources
+        working-directory: sample-applications/udp-exporter-test-app
+        run: |
+          cat > NuGet.Config << EOF
+          <?xml version="1.0" encoding="utf-8"?>
+          <configuration>
+            <packageSources>
+              <clear />
+              <add key="local-udp-exporter" value="$GITHUB_WORKSPACE/exporters/AWS.OpenTelemetry.Exporter.Otlp.Udp/bin/Release" />
+              <add key="nuget.org" value="https://api.nuget.org/v3/index.json" />
+            </packageSources>
+          </configuration>
+          EOF
+          
+          # Show the created config
+          cat NuGet.Config
+
+
+      - name: Build & Package the UDP exporter locally
+        working-directory: exporters/AWS.OpenTelemetry.Exporter.Otlp.Udp
+        run: |
+          dotnet pack -c Release
+
+      - name: Run Sample App in Background
+        working-directory: sample-applications/udp-exporter-test-app
+        run: |
+          # Install the locally built version of the UDP exporter
+          dotnet add package AWS.OpenTelemetry.Exporter.Otlp.Udp
+          # Start validation app
+          dotnet run &
+          # Wait for validation app to initialize
+          sleep 5
+
+      - name: Call Sample App Endpoint
+        run: |
+          curl localhost:8080/test
+
+      - name: Verify X-Ray daemon received traces
+        run: |
+          sleep 10
+          echo "X-Ray daemon logs:"
+          cat xray-daemon/daemon-logs.log
+
+          # Check if the daemon received and processed some data
+          if grep -q "sending.*batch" xray-daemon/daemon-logs.log; then
+            echo "✅ X-Ray daemon processed trace data (AWS upload errors are expected)"
+            exit 0
+          elif grep -q "processor:.*segment" xray-daemon/daemon-logs.log; then
+            echo "✅ X-Ray daemon processed segment data (AWS upload errors are expected)"
+            exit 0
+          else
+            echo "❌ No evidence of traces being received by X-Ray daemon"
+            exit 1
+          fi
+
+      # TODO: Steps to publish to NuGet
