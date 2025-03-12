@@ -3,7 +3,7 @@
 
 using Microsoft.Extensions.Logging;
 
-namespace AWS.Distro.OpenTelemetry.AutoInstrumentation.Logging;
+namespace AWS.OpenTelemetry.Shared.Logging;
 
 /// <summary>
 /// ConsoleLoggerProvider class

@@ -25,6 +25,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="../../loggers/AWS.OpenTelemetry.Shared.Logging/AWS.OpenTelemetry.Shared.Logging.csproj" PrivateAssets="All" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Protobuf Include="opentelemetry\proto\collector\trace\v1\trace_service.proto" GrpcServices="none" ProtoRoot="." />
     <Protobuf Include="opentelemetry\proto\trace\v1\trace.proto" GrpcServices="none" ProtoRoot="." />
     <Protobuf Include="opentelemetry\proto\resource\v1\resource.proto" GrpcServices="none" ProtoRoot="." />
