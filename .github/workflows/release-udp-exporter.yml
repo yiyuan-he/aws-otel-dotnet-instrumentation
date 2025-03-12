@@ -8,6 +8,10 @@ on:
         required: true
         type: string
 
+permissions:
+  id-token: write
+  contents: write
+
 jobs:
   build-test-publish:
     runs-on: ubuntu-latest
@@ -83,3 +87,8 @@ jobs:
           fi
 
       # TODO: Steps to publish to NuGet
+      - name: Assume signer role
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          role-to-assume: ${{ secrets.AWS_ARTIFACT_ACCESS_ROLE_ARN }}
+          aws-region: ${{ env.AWS_SIGNING_KEY_REGION }}
